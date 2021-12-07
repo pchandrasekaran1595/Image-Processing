@@ -57,8 +57,8 @@ def test_adaptive_equalization(image, clipLimit, tileGridSize):
     assert Processor.adaptive_equalization(image, clipLimit, tileGridSize).all() == image.all()
 
 
-@pytest.mark.parametrize("image, clipLimit, tileGridSize",[(image_1, 24, 1), (image_2, 2.5, 4), (image_3, 4.7625, 8)])
-def test_histogram_equalization(image, clipLimit, tileGridSize):  
+@pytest.mark.parametrize("image, clipLimit, tileGridSize",[(image_1), (image_2), (image_3)])
+def test_histogram_equalization(image):  
     if len(image.shape) == 3:
         for i in range(3):
             image[:, :, i] = cv2.equalizeHist(image[:, :, i])
