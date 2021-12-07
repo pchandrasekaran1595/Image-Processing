@@ -8,6 +8,7 @@ image_1 = read_image("Files/Image_1.jpg")
 image_2 = np.random.randint(low=0, high=255, size=(224, 224, 3)).astype("uint8")
 image_3 = np.random.randint(low=0, high=255, size=(360, 640, 3)).astype("uint8")
 
+#######################################################################################################
 
 @pytest.mark.parametrize("image, kernel_size, sigmaX",[(image_1, 5, 0), (image_2, 15, 3), (image_3, 25, 25)])
 def test_gaussian_blur_1(image, kernel_size, sigmaX):   
@@ -33,6 +34,7 @@ def test_median_blur_1(image, kernel_size):
 def test_median_blur_2(image, kernel_size):   
     assert Processor.median_blur(image, kernel_size).all() == cv2.medianBlur(src=image, ksize=kernel_size+1).all()
 
+#######################################################################################################
 
 @pytest.mark.parametrize("image, gamma",[(image_1, 1.8), (image_2, 0.5), (image_3, 2.8)])
 def test_gamma(image, gamma): 
@@ -66,6 +68,7 @@ def test_histogram_equalization(image):
         image = cv2.equalizeHist(image) 
     assert Processor.histogram_equalization(image).all() == image.all()
 
+#######################################################################################################
 
 @pytest.mark.parametrize("image, hue",[(image_1, 2.5), (image_2, 75.625), (image_3, 0.1123421)])
 def test_hue(image, hue): 
@@ -95,3 +98,33 @@ def test_vibrance(image, vibrance):
     image[:, :, 2] = feature
     image = cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
     assert Processor.adjust_vibrance(image, vibrance).all() == image.all()
+
+#######################################################################################################
+
+@pytest.mark.parametrize("image, width, height",[(image_1, 640, 360), (image_2, 32, 32), (image_3, 1280, 720)])
+def test_resize(image, width, height):  
+    assert Processor.resize_image(image, width, height).all() == cv2.resize(src=image, dsize=(width, height), interpolation=cv2.INTER_AREA).all()
+
+#######################################################################################################
+
+@pytest.mark.parametrize("image, sharpen",[(image_1, 3), (image_2, 7), (image_3, 13)])
+def test_sharpen_1(image, sharpen): 
+    kernel = cv2.getStructuringElement(shape=cv2.MORPH_CROSS, ksize=(sharpen, sharpen)) * -1
+    kernel[int(sharpen / 2), int(sharpen / 2)] = ((sharpen - 1) * 2) + 1
+
+    image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+    image = np.clip(image, 0, 255).astype("uint8")
+    assert Processor.sharpen(image, sharpen).all() == image.all()
+
+
+@pytest.mark.parametrize("image, sharpen",[(image_1, 4), (image_2, 12), (image_3, 16)])
+def test_sharpen_2(image, sharpen): 
+    sharpen += 1
+    kernel = cv2.getStructuringElement(shape=cv2.MORPH_CROSS, ksize=(sharpen, sharpen)) * -1
+    kernel[int(sharpen / 2), int(sharpen / 2)] = ((sharpen - 1) * 2) + 1
+
+    image = cv2.filter2D(src=image, ddepth=-1, kernel=kernel)
+    image = np.clip(image, 0, 255).astype("uint8")
+    assert Processor.sharpen(image, sharpen).all() == image.all()
+
+#######################################################################################################
