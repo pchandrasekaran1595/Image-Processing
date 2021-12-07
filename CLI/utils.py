@@ -35,7 +35,7 @@ class ImageProcessor(object):
     def __init__(self):
         pass
 
-    def gauss_blur(self, image: np.ndarray, kernel_size: int, sigmaX: float):
+    def gauss_blur(self, image: np.ndarray, kernel_size: int, sigmaX: float) -> np.ndarray:
         kernel_size = int(kernel_size)
 
         if kernel_size == 1:
@@ -48,6 +48,47 @@ class ImageProcessor(object):
         else: sigmaX = 0
 
         return cv2.GaussianBlur(src=image, ksize=(kernel_size, kernel_size), sigmaX=sigmaX)
+    
+    def average_blur(self, image: np.ndarray, kernel_size: int) -> np.ndarray:
+        return cv2.blur(src=image, ksize=(kernel_size, kernel_size))
+    
+    def median_blur(self, image: np.ndarray, kernel_size: int) -> np.ndarray:
+        kernel_size = int(kernel_size)
 
+        if kernel_size == 1:
+            kernel_size = 3
+        
+        if kernel_size % 2 == 0:
+            kernel_size += 1
+
+        return cv2.medianBlur(src=image, ksize=kernel_size)
+    
+    def adjust_gamma(self, image: np.ndarray, gamma: float) -> np.ndarray:
+        image = image / 255
+        image = np.clip(((image ** gamma) * 255), 0, 255).astype("uint8")
+        return image
+    
+    def adjust_linear_contrast(self, image: np.ndarray, alpha: float) -> np.ndarray:
+        return np.clip((image + alpha), 0, 255).astype("uint8")
+    
+    def adaptive_equalization(self, image: np.ndarray, clipLimit: float, tileGridSize: int) -> np.ndarray:
+        if tileGridSize != "": tileGridSize = int(tileGridSize)
+        else: tileGridSize = 2
+
+        clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=(tileGridSize, tileGridSize))
+        if len(image.shape) == 3:
+            for i in range(3):
+                image[:, :, i] = clahe.apply(image[:, :, i])
+        else:
+            image = clahe.apply(image)
+        return image
+    
+    def histogram_equalization(self, image: np.ndarray) -> np.ndarray:
+        if len(image.shape) == 3:
+            for i in range(3):
+                image[:, :, i] = cv2.equalizeHist(image[:, :, i])
+        else:
+            image = cv2.equalizeHist(image)
+        return image
 
 Processor = ImageProcessor()
