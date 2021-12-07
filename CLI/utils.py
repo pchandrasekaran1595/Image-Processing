@@ -35,7 +35,7 @@ class ImageProcessor(object):
     def __init__(self):
         pass
 
-    def gauss_blur(self, image: np.ndarray, kernel_size: int, sigmaX: float) -> np.ndarray:
+    def gauss_blur(self, image: np.ndarray, kernel_size, sigmaX) -> np.ndarray:
         kernel_size = int(kernel_size)
 
         if kernel_size == 1:
@@ -52,7 +52,7 @@ class ImageProcessor(object):
     def average_blur(self, image: np.ndarray, kernel_size: int) -> np.ndarray:
         return cv2.blur(src=image, ksize=(kernel_size, kernel_size))
     
-    def median_blur(self, image: np.ndarray, kernel_size: int) -> np.ndarray:
+    def median_blur(self, image: np.ndarray, kernel_size) -> np.ndarray:
         kernel_size = int(kernel_size)
 
         if kernel_size == 1:
@@ -71,7 +71,7 @@ class ImageProcessor(object):
     def adjust_linear_contrast(self, image: np.ndarray, alpha: float) -> np.ndarray:
         return np.clip((image + alpha), 0, 255).astype("uint8")
     
-    def adaptive_equalization(self, image: np.ndarray, clipLimit: float, tileGridSize: int) -> np.ndarray:
+    def adaptive_equalization(self, image: np.ndarray, clipLimit: float, tileGridSize) -> np.ndarray:
         if tileGridSize != "": tileGridSize = int(tileGridSize)
         else: tileGridSize = 2
 
@@ -90,5 +90,26 @@ class ImageProcessor(object):
         else:
             image = cv2.equalizeHist(image)
         return image
+    
+    def adjust_hue(self, image: np.ndarray, hue: float):
+        image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+        feature = image[:, :, 0]
+        feature = np.clip((hue * feature), 0, 179).astype("uint8")
+        image[:, :, 0] = feature
+        return cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
+
+    def adjust_saturation(self, image: np.ndarray, saturation: float):
+        image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+        feature = image[:, :, 1]
+        feature = np.clip((saturation * feature), 0, 255).astype("uint8")
+        image[:, :, 1] = feature
+        return cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
+
+    def adjust_vibrance(self, image: np.ndarray, vibrance: float):
+        image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+        feature = image[:, :, 2]
+        feature = np.clip((vibrance * feature), 0, 255).astype("uint8")
+        image[:, :, 2] = feature
+        return cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
 
 Processor = ImageProcessor()

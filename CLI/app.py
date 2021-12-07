@@ -5,15 +5,18 @@ from .utils import READ_PATH, Processor, read_image, save_image, show
 
 
 def run():
-    args_1 = ["--file", "-f"]
-    args_2 = ["--gauss-blur", "-gb"]
-    args_3 = ["--avg-blur", "-ab"]
-    args_4 = ["--median-blur", "-mb"]
-    args_5 = ["--gamma", "-g"]
-    args_6 = ["--linear", "-l"]
-    args_7 = ["--clahe", "-ae"]
-    args_8 = ["--hist-equ", "-he"]
-    args_10 = ["--save", "-s"]
+    args_1  = ["--file", "-f"]
+    args_2  = ["--gauss-blur", "-gb"]
+    args_3  = ["--avg-blur", "-ab"]
+    args_4  = ["--median-blur", "-mb"]
+    args_5  = ["--gamma", "-g"]
+    args_6  = ["--linear", "-l"]
+    args_7  = ["--clahe", "-ae"]
+    args_8  = ["--hist-equ", "-he"]
+    args_9  = ["--hue", "-h"]
+    args_10 = ["--saturation", "-sat"]
+    args_11 = ["--vibrance", "-v"]
+    args_20 = ["--save", "-s"]
 
     filename = None
     do_gauss_blur = False
@@ -23,6 +26,9 @@ def run():
     do_linear = False
     do_clahe = False
     do_histogram_equalization = False
+    do_hue = False
+    do_saturation = False
+    do_vibrance = False
     save = False
 
     if args_1[0] in sys.argv: filename = sys.argv[sys.argv.index(args_1[0]) + 1]
@@ -82,9 +88,30 @@ def run():
         do_histogram_equalization = True
     if args_8[1] in sys.argv: 
         do_histogram_equalization = True
+    
+    if args_9[0] in sys.argv:
+        do_hue = True
+        hue = float(sys.argv[sys.argv.index(args_9[0]) + 1])
+    if args_9[1] in sys.argv:
+        do_hue = True
+        hue = float(sys.argv[sys.argv.index(args_9[1]) + 1])
+    
+    if args_10[0] in sys.argv:
+        do_saturation = True
+        saturation = float(sys.argv[sys.argv.index(args_10[0]) + 1])
+    if args_10[1] in sys.argv:
+        do_saturation = True
+        saturation = float(sys.argv[sys.argv.index(args_10[1]) + 1])
+    
+    if args_11[0] in sys.argv:
+        do_vibrance = True
+        vibrance = float(sys.argv[sys.argv.index(args_11[0]) + 1])
+    if args_11[1] in sys.argv:
+        do_vibrance = True
+        vibrance = float(sys.argv[sys.argv.index(args_11[1]) + 1])
   
-    if args_10[0] in sys.argv: save = True
-    if args_10[1] in sys.argv: save = True
+    if args_20[0] in sys.argv: save = True
+    if args_20[1] in sys.argv: save = True
 
     assert filename is not None, "Missing value for --file | -f"
     assert filename in os.listdir(READ_PATH), "File Not Found"
@@ -97,7 +124,11 @@ def run():
     if do_gamma: image = Processor.adjust_gamma(image=image, gamma=gamma)
     if do_linear: image = Processor.adjust_linear_contrast(image=image, alpha=linear)
     if do_clahe: image = Processor.adaptive_equalization(image=image, clipLimit=clipLimit, tileGridSize=tileGridSize)
-    if do_histogram_equalization: Processor.histogram_equalization(image=image)
+    if do_histogram_equalization: image = Processor.histogram_equalization(image=image)
+    if do_hue: image = Processor.adjust_hue(image=image, hue=hue)
+    if do_saturation: image = Processor.adjust_saturation(image=image, saturation=saturation)
+    if do_vibrance: image = Processor.adjust_vibrance(image=image, vibrance=vibrance)
+
 
     if not save: show(image)
     else: save_image(image)

@@ -65,3 +65,33 @@ def test_histogram_equalization(image):
     else:
         image = cv2.equalizeHist(image) 
     assert Processor.histogram_equalization(image).all() == image.all()
+
+
+@pytest.mark.parametrize("image, hue",[(image_1, 2.5), (image_2, 75.625), (image_3, 0.1123421)])
+def test_hue(image, hue): 
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+    feature = image[:, :, 0]
+    feature = np.clip((hue * feature), 0, 179).astype("uint8")
+    image[:, :, 0] = feature
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
+    assert Processor.adjust_hue(image, hue).all() == image.all()
+
+
+@pytest.mark.parametrize("image, saturation",[(image_1, 2.932), (image_2, 0.61225), (image_3, 3.1123421)])
+def test_saturation(image, saturation): 
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+    feature = image[:, :, 1]
+    feature = np.clip((saturation * feature), 0, 255).astype("uint8")
+    image[:, :, 1] = feature
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
+    assert Processor.adjust_saturation(image, saturation).all() == image.all()
+
+
+@pytest.mark.parametrize("image, vibrance",[(image_1, 0.25), (image_2, 1.632349), (image_3, 3.1123421)])
+def test_vibrance(image, vibrance): 
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_BGR2HSV)
+    feature = image[:, :, 2]
+    feature = np.clip((vibrance * feature), 0, 255).astype("uint8")
+    image[:, :, 2] = feature
+    image = cv2.cvtColor(src=image, code=cv2.COLOR_HSV2BGR)
+    assert Processor.adjust_vibrance(image, vibrance).all() == image.all()
