@@ -21,7 +21,8 @@ def run():
     args_14 = ["--sharpen", "-sh"]
     args_15 = ["--posterize", "-post"]
     args_16 = ["--dither", "-dit"]
-    args_20 = ["--save", "-s"]
+    args_17 = "-wf"
+    args_18 = ["--save", "-s"]
 
     filename = None
     do_gauss_blur = False
@@ -38,6 +39,7 @@ def run():
     do_sharpen = False
     do_posterize = False
     do_dither = False
+    workflow = False
     save = False
 
     if args_1[0] in sys.argv: filename = sys.argv[sys.argv.index(args_1[0]) + 1]
@@ -134,22 +136,23 @@ def run():
         sharpen_kernel_size = sys.argv[sys.argv.index(args_14[1]) + 1]
     
     if args_15[0] in sys.argv:
-        do_dither = True
-        num_colors = int(sys.argv[sys.argv.index(args_15[0]) + 1])
-    if args_16[1] in sys.argv:
-        do_dither = True
-        num_colors = int(sys.argv[sys.argv.index(args_16[1]) + 1])
-    
-    if args_16[0] in sys.argv:
         do_posterize = True
-        num_colors = int(sys.argv[sys.argv.index(args_16[0]) + 1])
+        num_colors = int(sys.argv[sys.argv.index(args_15[0]) + 1])
     if args_15[1] in sys.argv:
         do_posterize = True
         num_colors = int(sys.argv[sys.argv.index(args_15[1]) + 1])
+    
+    if args_16[0] in sys.argv:
+        do_dither = True
+        num_colors = int(sys.argv[sys.argv.index(args_16[0]) + 1])
+    if args_16[1] in sys.argv:
+        do_dither = True
+        num_colors = int(sys.argv[sys.argv.index(args_16[1]) + 1])
 
+    if args_17 in sys.argv: workflow = True
   
-    if args_20[0] in sys.argv: save = True
-    if args_20[1] in sys.argv: save = True
+    if args_18[0] in sys.argv: save = True
+    if args_18[1] in sys.argv: save = True
 
     assert filename is not None, "Missing value for --file | -f"
     assert filename in os.listdir(READ_PATH), "File Not Found"
@@ -167,9 +170,6 @@ def run():
     if do_saturation: image = Processor.adjust_saturation(image=image, saturation=saturation)
     if do_vibrance: image = Processor.adjust_vibrance(image=image, vibrance=vibrance)
     if do_sharpen: image = Processor.sharpen(image=image, kernel_size=sharpen_kernel_size)
-    if do_posterize: image = Processor.posterize_image(image=image, num_colors=num_colors)
-    if do_dither: image = Processor.dither_image(image=image, num_colors=num_colors)
-
 
     if isinstance(width, int) and height is None:
         h, _, _ = image.shape
@@ -181,6 +181,12 @@ def run():
     
     if isinstance(width, int) and isinstance(height, int):
         image = Processor.resize_image(image, width, height)
+    
+    if do_posterize: image = Processor.posterize_image(image=image, num_colors=num_colors)
+    if do_dither: image = Processor.dither_image(image=image, num_colors=num_colors)
 
-    if not save: show(image)
-    else: save_image(image)
+    if not save: 
+        if not workflow: 
+            show(image)
+    else: 
+        save_image(image)
